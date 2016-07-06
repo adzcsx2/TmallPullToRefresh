@@ -11,6 +11,8 @@ import android.view.MotionEvent;
 public class HoynPtrFrameLayout extends PtrFrameLayout {
     private static final String TAG = "PtrFrameLayout";
     private HoynRadioGroup myRadioGroup;
+    //the maxHeight is the radioGroup * rate;
+    private static final float OUTSIDE_RATE = 2f;
 
     public HoynRadioGroup getMyRadioGroup() {
         return myRadioGroup;
@@ -41,9 +43,9 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             myRadioGroup.dispatchTouchEvent(e);
             float headerHeight = getPtrIndicator().getHeaderHeight();
             float off_y = getPtrIndicator().getCurrentPosY();
-            if(off_y<headerHeight||off_y>headerHeight*2){
+            if (off_y < headerHeight || off_y > headerHeight * OUTSIDE_RATE) {
                 myRadioGroup.setIsHeaderShow(false);
-            }else{
+            } else {
                 myRadioGroup.setIsHeaderShow(true);
             }
         }

@@ -1,7 +1,5 @@
 package com.hoyn.tmallpulltorefresh;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,7 +9,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -40,9 +37,11 @@ public class HoynRadioGroup extends RadioGroup {
     private boolean isShowCircle = true; //判断下拉过程中是否显示圆
     private boolean isChangeState = false;//圆动画和动画结束的切换
     private boolean isShowCircleAnimation = true; //下拉过程中是否应该显示圆的动画
+    private boolean isCircleAnimating = false; //判断显示圆的动画是否在执行
 
-
-    private static final int animatorDuration = 200;//动画执行时间
+    private static final int createCircleDuration = 200; //圆出现动画执行时间
+    private static final int createCircleInterval = 20; //动画执行频率
+    private static final int animatorDuration = 200;//圆左右移动动画执行时间
     private static final int animatorInterval = 20; //动画执行频率
 
     private float radius;
@@ -99,18 +98,20 @@ public class HoynRadioGroup extends RadioGroup {
                 }
                 down_x = ev.getX();
                 animatInit();
+                radius = 0 ;
+                invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!isAnimating) {
                     //showCircle animation
-                    if (isChangeState != isHeaderShow) {
+                    if (isChangeState != isHeaderShow && !isCircleAnimating) {
                         isShowCircleAnimation = true;
                         if (isHeaderShow) {
                             //open the circle when the header is show complete
-                            circleAnimationStart(0, circle.getRadius(), 300, false, ev);
+                            circleAnimationStart(0, circle.getRadius(), createCircleDuration, true, ev);
                         } else {
                             //close the circle when the header is not show or the height more than the headerView's height * 2;
-                            circleAnimationStart(circle.getRadius(), 0, 300, true, ev);
+                            circleAnimationStart(circle.getRadius(), 0, createCircleDuration, false, ev);
                         }
                         return super.dispatchTouchEvent(ev);
                     }
@@ -153,8 +154,8 @@ public class HoynRadioGroup extends RadioGroup {
             case MotionEvent.ACTION_UP:
                 off_left = 0;
                 off_right = 0;
-                //close the circle when finger up
-                circleAnimationStart(circle.getRadius(), 0, 300, true, ev);
+                //close the circle when finger up,but it is not work.
+                circleAnimationStart(circle.getRadius(), 0, createCircleDuration/10, false, ev);
                 invalidate();
                 break;
         }
@@ -171,38 +172,50 @@ public class HoynRadioGroup extends RadioGroup {
      * @param ev       get the down_x when animation is end;
      */
     private void circleAnimationStart(final float from, final float to, final int duration, final boolean isCreate, final MotionEvent ev) {
-        ObjectAnimator mRadiusAnimator = ObjectAnimator.ofFloat(this, "radius", from,
-                to);
-        mRadiusAnimator.setDuration(duration);
-        mRadiusAnimator
-                .setInterpolator(new AccelerateDecelerateInterpolator());
-        mRadiusAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                isAnimating = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                isShowCircle = !isCreate;
+        isCircleAnimating = true;
+        if (isCreate) {
+            //if the animation is create circle
+            if (from > to) {
+                isShowCircle = isCreate;
                 isAnimating = false;
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
+                isCircleAnimating = false;
                 if (ev != null)
                     down_x = ev.getX();
+                return;
             }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
+            radius = from;
+            invalidate();
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float addInterval = to / (createCircleDuration / createCircleInterval);
+                    circleAnimationStart(from + addInterval, to, duration - createCircleInterval, isCreate, ev);
+                }
+            }, createCircleInterval);
+        } else {
+            if (from < 0) {
+                isShowCircle = isCreate;
                 isAnimating = false;
+                isChangeState = isHeaderShow;
+                isShowCircleAnimation = false;
+                isCircleAnimating = false;
+                if (ev != null)
+                    down_x = ev.getX();
+                return;
             }
+            radius = from;
+            invalidate();
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float addInterval = circle.getRadius() / (createCircleDuration / createCircleInterval);
+                    circleAnimationStart(from - addInterval, to, duration - createCircleInterval, isCreate, ev);
+                }
+            }, createCircleInterval);
+        }
 
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-        mRadiusAnimator.start();
     }
 
     public void setRadius(float radius) {
@@ -251,6 +264,7 @@ public class HoynRadioGroup extends RadioGroup {
                 int mPreX = preX;
                 int mOff_x = Math.abs(currentX - endX) / (animatorDuration / animatorInterval);
                 int mPull_x = mOff_left > mOff_right ? mOff_left : mOff_right;
+                //the recover time is half of the move time
                 int mPull_interval = Math.abs(mPull_x) / (animatorDuration / animatorInterval) * 2;
 
                 if (mPreX < currentX) {
@@ -293,29 +307,27 @@ public class HoynRadioGroup extends RadioGroup {
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
-        if (isHeaderShow) {
-            if (isShowCircleAnimation) {
-                canvas.drawCircle(circle.getX(), circle.getY(), radius, mPaint);
-                return;
-            }
-            if (isShowCircle && !isShowCircleAnimation) {
-                //get the short edge
-                int width = circle.getX() < circle.getY() ? circle.getX() : circle.getY();
-                //In order to pull the circle,get two semi-circle , one is left, on is right.
-                final RectF rectLeft = new RectF(width - circle.getRadius() - off_left, width - circle.getRadius(), width + circle.getRadius() + off_left, width + circle.getRadius());
-                final RectF rectRight = new RectF(width - circle.getRadius() - off_right, width - circle.getRadius(), width + circle.getRadius() + off_right, width + circle.getRadius());
-                rectLeft.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
-                rectRight.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
-                //draw the circle
-                canvas.drawArc(rectLeft, 90, 180, true, mPaint);
-                canvas.drawArc(rectRight, 270, 180, true, mPaint);
-            }
+        //get the short edge
+        int width = circle.getX() < circle.getY() ? circle.getX() : circle.getY();
+        RectF rectLeft = null;
+        RectF rectRight = null;
+        if (isShowCircleAnimation) {
+            rectLeft = new RectF(width - radius, width - radius, width + radius, width + radius);
+            rectRight = new RectF(width - radius, width - radius, width + radius, width + radius);
         } else {
-            if (isShowCircleAnimation) {
-                canvas.drawCircle(circle.getX(), circle.getY(), radius, mPaint);
-                return;
+            if (isShowCircle && isHeaderShow) {
+                rectLeft = new RectF(width - circle.getRadius() - off_left, width - circle.getRadius(), width + circle.getRadius() + off_left, width + circle.getRadius());
+                rectRight = new RectF(width - circle.getRadius() - off_right, width - circle.getRadius(), width + circle.getRadius() + off_right, width + circle.getRadius());
             }
         }
+        if(rectLeft==null){
+            return;
+        }
+        rectLeft.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
+        rectRight.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
+        //draw the circle
+        canvas.drawArc(rectLeft, 90, 180, true, mPaint);
+        canvas.drawArc(rectRight, 270, 180, true, mPaint);
     }
 
 
