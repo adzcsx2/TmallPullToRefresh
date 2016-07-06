@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RadioButton;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class HoynRadioGroup extends RadioGroup {
 
-    private static final String TAG = "Group";
+    private static final String TAG = "HoynRadioGroup";
     private float down_x;
     private int childCount;
     private int currentIndex;
@@ -28,9 +29,13 @@ public class HoynRadioGroup extends RadioGroup {
     private Path path;
 
     private int off_left = 0, off_right = 0;
-
     private Circle circle;
-    private List<Circle> circleList;
+    private List<Circle> circleList = new ArrayList<>();
+
+    private boolean isAnimating = false;
+
+    private static final int animatorDuration = 200;//动画执行时间
+    private static final int animatorInterval = 20; //动画执行频率
 
     public HoynRadioGroup(Context context) {
         super(context);
@@ -69,67 +74,140 @@ public class HoynRadioGroup extends RadioGroup {
                 down_x = ev.getX();
                 break;
             case MotionEvent.ACTION_MOVE:
-                int off_x = (int) (ev.getX() - down_x);
-                View child = getChildAt(currentIndex);
-                if (child == null) {
-                    return super.dispatchTouchEvent(ev);
-                }
-                int width = child.getWidth();
-                //Calculation of tensile strength
-                if(off_x<0&&Math.abs(off_x)<width/2&&currentIndex!=0){
-                    off_left = off_x/2;
-                    off_right = 0;
-                }else if (off_x>0&&Math.abs(off_x)<width/2&&currentIndex<childCount-1){
-                    off_right =  off_x/2;
-                    off_left = 0;
-                }else{
-                    off_left = 0;
-                    off_right = 0;
-                }
-                invalidate();
-                if (Math.abs(off_x) > width / 2) {
-                    down_x = ev.getX();
-                    //touch to right
-                    if (off_x > 0 && currentIndex < childCount - 1)
-                        currentIndex++;
-                        //touch to left
-                    else if (off_x < 0 && currentIndex > 0)
-                        currentIndex--;
-                    View mChild = getChildAt(currentIndex);
-                    if (mChild != null && mChild instanceof RadioButton) {
-                        //First set current radiobutton be checked
-                        ((RadioButton) mChild).setChecked(true);
-                        circle = circleList.get(currentIndex);
-                        invalidate();
-                        //Next set previous radiobuton be unchecked;
-                        if (child instanceof RadioButton && mChild != child) {
-                            ((RadioButton) child).setChecked(false);
+                if (!isAnimating) {
+                    int off_x = (int) (ev.getX() - down_x);
+                    final View preChild = getChildAt(currentIndex);
+                    if (preChild == null) {
+                        return super.dispatchTouchEvent(ev);
+                    }
+                    int width = preChild.getWidth();
+                    //Calculation of tensile strength and invalidate the view.
+                    if (off_x < 0 && Math.abs(off_x) < width / 2 && currentIndex != 0) {
+                        off_left = (int) Math.abs((off_x / 1.5));
+                        off_right = 0;
+                    } else if (off_x > 0 && Math.abs(off_x) < width / 2 && currentIndex < childCount - 1) {
+                        off_right = (int) Math.abs((off_x / 1.5));
+                        off_left = 0;
+                    }
+                    invalidate();
+                    //judge the distance whether arrive at next position
+                    //In order to be smooth to the touch , width need to /2.
+                    if (Math.abs(off_x) > width / 2) {
+                        down_x = ev.getX();
+                        //pull to right
+                        if (off_x > 0 && currentIndex < childCount - 1)
+                            currentIndex++;
+                            //pull to left
+                        else if (off_x < 0 && currentIndex > 0)
+                            currentIndex--;
+                        final View currentChild = getChildAt(currentIndex);
+                        if (currentChild != null && currentChild instanceof RadioButton) {
+                            //setAnimation
+                            animationStart(currentIndex, new AnimatorListener(currentChild, preChild));
                         }
+
+
                     }
                 }
+                break;
+            case MotionEvent.ACTION_UP:
+                off_left = 0;
+                off_right = 0;
+                invalidate();
                 break;
         }
         return super.dispatchTouchEvent(ev);
     }
 
     /**
-     * control a circle slip to the index circle
+     * control a circle slip to the new circle.
      * @param index
+     * @param onAnimatorListener
      */
-    private void animationStart(int index){
-        
+    private void animationStart(final int index, OnAnimatorListener onAnimatorListener) {
+        final Circle mCurrentCircle = circleList.get(index);
+        int preX = circle.getX();
+        int currentX = mCurrentCircle.getX();
+        endX = preX;
+        mOff_left = off_left;
+        mOff_right = off_right;
+        onAnimatorListener.onAnimatorStart();
+        animationHelper(preX, currentX, animatorDuration, onAnimatorListener);
     }
 
+
+
+    private int endX;
+    private int mOff_left;
+    private int mOff_right;
+
+    /**
+     * use recursion help animator to draw the view
+     * @param preX      previous circle x position
+     * @param currentX  current circle x position
+     * @param duration  use recursion to judge the duration whether is overtime
+     * @param onAnimatorListener
+     */
+    private void animationHelper(final int preX, final int currentX, final int duration, final OnAnimatorListener onAnimatorListener) {
+        if (duration < 0) {
+            return;
+        }
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int mPreX = preX;
+                int mOff_x = Math.abs(currentX - endX) / (animatorDuration / animatorInterval);
+                int mPull_x = mOff_left > mOff_right ? mOff_left : mOff_right;
+                int mPull_interval = Math.abs(mPull_x) / (animatorDuration / animatorInterval) * 2;
+
+                if (mPreX < currentX) {
+                    Log.i(TAG, "toRight");
+                    //update the new circle position
+                    mPreX += mOff_x;
+                    //gradually recover the left pull
+                    if (off_right > 0) {
+                        off_right -= mPull_interval;
+                    } else {
+                        off_right = 0;
+                    }
+                    if (mPreX > currentX) {
+                        mPreX = currentX;
+                    }
+                } else {
+                    Log.i(TAG, "toLeft");
+                    mPreX -= mOff_x;
+                    if (off_left > 0) {
+                        off_left -= mPull_interval;
+                    } else {
+                        off_left = 0;
+                    }
+                    if (mPreX < currentX) {
+                        mPreX = currentX;
+                    }
+                }
+                //set circle X position to invalidate the view
+                circle.setX(mPreX);
+                invalidate();
+                if (mPreX != currentX) {
+                    animationHelper(mPreX, currentX, duration - animatorInterval, onAnimatorListener);
+                } else {
+                    onAnimatorListener.onAnimatorComplete();
+                }
+            }
+        }, animatorInterval);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        //get the short edge
         int width = circle.getX() < circle.getY() ? circle.getX() : circle.getY();
-
-        RectF rectLeft = new RectF(width - circle.getRadius() + off_left, width - circle.getRadius(), width + circle.getRadius() - off_left, width + circle.getRadius());
-        RectF rectRight = new RectF(width - circle.getRadius() - off_right, width - circle.getRadius(), width + circle.getRadius() +off_right, width + circle.getRadius());
+        //In order to pull the circle,get two semi-circle , one is left, on is right.
+        RectF rectLeft = new RectF(width - circle.getRadius() - off_left, width - circle.getRadius(), width + circle.getRadius() + off_left, width + circle.getRadius());
+        RectF rectRight = new RectF(width - circle.getRadius() - off_right, width - circle.getRadius(), width + circle.getRadius() + off_right, width + circle.getRadius());
         rectLeft.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
         rectRight.offset(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius());
+        //draw the circle
         canvas.drawArc(rectLeft, 90, 180, true, mPaint);
         canvas.drawArc(rectRight, 270, 180, true, mPaint);
     }
@@ -137,8 +215,9 @@ public class HoynRadioGroup extends RadioGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //get children
         childCount = getChildCount();
-        circleList = new ArrayList<>();
+        circleList.clear();
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child instanceof RadioButton) {
@@ -162,6 +241,39 @@ public class HoynRadioGroup extends RadioGroup {
 
     }
 
+    /**
+     * the animation callback listener
+     */
+    private class AnimatorListener implements OnAnimatorListener {
+
+        View currentChild;
+        View preChild;
+
+        public AnimatorListener(View currentChild, View preChild) {
+            this.currentChild = currentChild;
+            this.preChild = preChild;
+        }
+
+        @Override
+        public void onAnimatorStart() {
+            isAnimating = true;
+        }
+
+        @Override
+        public void onAnimatorComplete() {
+            isAnimating = false;
+            //First set current radiobutton be checked
+            ((RadioButton) currentChild).setChecked(true);
+            //Next set previous radiobuton be unchecked;
+            if (preChild instanceof RadioButton && currentChild != preChild) {
+                ((RadioButton) preChild).setChecked(false);
+            }
+        }
+    }
+
+    /**
+     * the module of Circle
+     */
     private class Circle {
         int x;
         int y;
@@ -201,6 +313,14 @@ public class HoynRadioGroup extends RadioGroup {
         public void setY(int y) {
             this.y = y;
         }
+    }
+
+    /**
+     * the listener of animation callback
+     */
+    private interface OnAnimatorListener {
+        void onAnimatorStart();
+        void onAnimatorComplete();
     }
 
 }
