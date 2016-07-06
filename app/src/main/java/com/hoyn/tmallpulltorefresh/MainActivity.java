@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
 
 public class MainActivity extends Activity {
 
@@ -39,6 +37,7 @@ public class MainActivity extends Activity {
         });
         ptrFrameLayout.setMyRadioGroup(group);
         ptrFrameLayout.setHeaderView(view_header);
+
         ptrFrameLayout.setPtrHandler(new PtrHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {

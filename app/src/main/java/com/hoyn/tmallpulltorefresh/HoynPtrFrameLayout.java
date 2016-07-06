@@ -4,14 +4,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import in.srain.cube.views.ptr.PtrFrameLayout;
 
 /**
  * Created by Hoyn on 2016/7/5.
  */
 public class HoynPtrFrameLayout extends PtrFrameLayout {
     private static final String TAG = "PtrFrameLayout";
-    HoynRadioGroup myRadioGroup;
+    private HoynRadioGroup myRadioGroup;
 
     public HoynRadioGroup getMyRadioGroup() {
         return myRadioGroup;
@@ -38,9 +37,23 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
     public boolean dispatchTouchEvent(MotionEvent e) {
         boolean superEvent = super.dispatchTouchEvent(e);
         //put touchEvent to customRadioGroup
-        if (myRadioGroup != null)
+        if (myRadioGroup != null) {
             myRadioGroup.dispatchTouchEvent(e);
+            float headerHeight = getPtrIndicator().getHeaderHeight();
+            float off_y = getPtrIndicator().getCurrentPosY();
+            if(off_y<headerHeight||off_y>headerHeight*2){
+                myRadioGroup.setIsHeaderShow(false);
+            }else{
+                myRadioGroup.setIsHeaderShow(true);
+            }
+        }
         return superEvent;
+    }
+
+
+    @Override
+    protected void onLayout(boolean flag, int i, int j, int k, int l) {
+        super.onLayout(flag, i, j, k, l);
     }
 
 }
