@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.hoyn.tmallpulltorefresh.HoynRadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/group"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <RadioButton
+        android:id="@+id/radioButton1"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:button="@null"
+        android:text="Button1" />
+
+
+    <RadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_weight="1"
+        android:button="@null"
+        android:gravity="center"
+        android:checked="true"
+        android:text="Button2" />
+</com.hoyn.tmallpulltorefresh.HoynRadioGroup>
