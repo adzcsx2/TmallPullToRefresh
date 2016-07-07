@@ -9,6 +9,7 @@
         android:id="@+id/group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:orientation="horizontal">
 
         <RadioButton
@@ -33,10 +34,12 @@
     </com.hoyn.tmallpulltorefresh.HoynRadioGroup>
 
 
+    <!--the progressbar linearlayout height must be the same as HoynRadioGroup height -->
     <LinearLayout
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:layout_margin="10dp"
         android:background="@color/background"
         android:gravity="center"
         android:visibility="invisible">

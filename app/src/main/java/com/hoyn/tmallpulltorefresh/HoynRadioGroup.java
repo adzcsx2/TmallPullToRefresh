@@ -164,8 +164,6 @@ public class HoynRadioGroup extends RadioGroup {
             case MotionEvent.ACTION_UP:
                 off_left = 0;
                 off_right = 0;
-                //close the circle when finger up,but it is not work.
-//                circleAnimationStart(circle.getRadius(), 0, createCircleDuration/10, false, ev);
                 invalidate();
                 break;
         }
@@ -216,7 +214,7 @@ public class HoynRadioGroup extends RadioGroup {
                 return;
             }
             radius = from;
-            invalidate();
+            invalidate(); //update this view
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -272,7 +270,9 @@ public class HoynRadioGroup extends RadioGroup {
             @Override
             public void run() {
                 int mPreX = preX;
+                //move distance once
                 int mOff_x = Math.abs(currentX - endX) / (animatorDuration / animatorInterval);
+                //judge the pull is left or right
                 int mPull_x = mOff_left > mOff_right ? mOff_left : mOff_right;
                 //the recover time is half of the move time
                 int mPull_interval = Math.abs(mPull_x) / (animatorDuration / animatorInterval) * 2;
@@ -322,10 +322,12 @@ public class HoynRadioGroup extends RadioGroup {
         RectF rectLeft = null;
         RectF rectRight = null;
         if (isShowCircleAnimation) {
+            //show the circle animation
             rectLeft = new RectF(width - radius, width - radius, width + radius, width + radius);
             rectRight = new RectF(width - radius, width - radius, width + radius, width + radius);
         } else {
             if (isShowCircle && isHeaderShow) {
+                //show the circle and follow touch
                 rectLeft = new RectF(width - circle.getRadius() - off_left, width - circle.getRadius(), width + circle.getRadius() + off_left, width + circle.getRadius());
                 rectRight = new RectF(width - circle.getRadius() - off_right, width - circle.getRadius(), width + circle.getRadius() + off_right, width + circle.getRadius());
             }
@@ -445,7 +447,6 @@ public class HoynRadioGroup extends RadioGroup {
      */
     private interface OnAnimatorListener {
         void onAnimatorStart();
-
         void onAnimatorComplete();
     }
 
