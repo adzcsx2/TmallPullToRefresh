@@ -1,27 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.hoyn.tmallpulltorefresh.HoynRadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/group"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background"
     android:orientation="horizontal">
 
-    <RadioButton
-        android:id="@+id/radioButton1"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:button="@null"
-        android:text="Button1" />
+    <com.hoyn.tmallpulltorefresh.HoynRadioGroup
+        android:id="@+id/group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioButton1"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:text="Button1" />
 
 
-    <RadioButton
-        android:id="@+id/radioButton2"
-        android:layout_width="0dp"
+        <RadioButton
+            android:id="@+id/radioButton2"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="Button2" />
+    </com.hoyn.tmallpulltorefresh.HoynRadioGroup>
+
+
+    <LinearLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_weight="1"
-        android:button="@null"
+        android:background="@color/background"
         android:gravity="center"
-        android:checked="true"
-        android:text="Button2" />
-</com.hoyn.tmallpulltorefresh.HoynRadioGroup>
+        android:visibility="invisible">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+</RelativeLayout>

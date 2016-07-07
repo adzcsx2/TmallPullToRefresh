@@ -213,7 +213,7 @@ public class PtrFrameLayout extends ViewGroup {
         if (mContent != null) {
             measureContentView(mContent, widthMeasureSpec, heightMeasureSpec);
             if (DEBUG && DEBUG_LAYOUT) {
-                ViewGroup.MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
+                MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
                 PtrCLog.d(LOG_TAG, "onMeasure content, width: %s, height: %s, margin: %s %s %s %s",
                         getMeasuredWidth(), getMeasuredHeight(),
                         lp.leftMargin, lp.topMargin, lp.rightMargin, lp.bottomMargin);

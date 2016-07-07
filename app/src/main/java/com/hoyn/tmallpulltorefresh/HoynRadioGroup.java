@@ -44,7 +44,8 @@ public class HoynRadioGroup extends RadioGroup {
     private static final int animatorDuration = 200;//圆左右移动动画执行时间
     private static final int animatorInterval = 20; //动画执行频率
 
-    private float radius;
+    private float radius;//下拉过程中 圆动画的半径
+    private float alpha;//下拉过程中 控件的透明度
 
     public HoynRadioGroup(Context context) {
         super(context);
@@ -54,6 +55,11 @@ public class HoynRadioGroup extends RadioGroup {
     public HoynRadioGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
         paintInit();
+    }
+
+    @Override
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
     }
 
     public void setColor(int mColor) {
@@ -103,6 +109,10 @@ public class HoynRadioGroup extends RadioGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!isAnimating) {
+                    //
+                    for (int i = 0 ;i< childCount;i++){
+                        getChildAt(i).setAlpha(alpha);
+                    }
                     //showCircle animation
                     if (isChangeState != isHeaderShow && !isCircleAnimating) {
                         isShowCircleAnimation = true;
@@ -155,7 +165,7 @@ public class HoynRadioGroup extends RadioGroup {
                 off_left = 0;
                 off_right = 0;
                 //close the circle when finger up,but it is not work.
-                circleAnimationStart(circle.getRadius(), 0, createCircleDuration/10, false, ev);
+//                circleAnimationStart(circle.getRadius(), 0, createCircleDuration/10, false, ev);
                 invalidate();
                 break;
         }
