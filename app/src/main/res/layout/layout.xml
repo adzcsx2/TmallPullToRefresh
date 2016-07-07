@@ -7,8 +7,7 @@
     android:orientation="vertical">
 
 
-    <com.hoyn.tmallpulltorefresh.HoynPtrFrameLayout
-        xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
+    <com.hoyn.tmallpulltorefresh.HoynPtrFrameLayout xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
         android:id="@+id/store_house_ptr_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,9 +29,14 @@
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_launcher"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_launcher" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_launcher" />
         </LinearLayout>
+
 
     </com.hoyn.tmallpulltorefresh.HoynPtrFrameLayout>
 

@@ -1,4 +1,4 @@
 # TmallPullToRefresh
 仿天猫的下拉刷新
  
-![](https://github.com/adzcsx2/TmallPullToRefresh/blob/master/images/v0.4.gif)
+![](https://github.com/adzcsx2/TmallPullToRefresh/blob/master/images/v0.5.gif)

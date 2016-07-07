@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
         ptrFrameLayout.setHeaderView(view_header);
         ptrFrameLayout.setProgressBar(progressBar);
 
+
         ptrFrameLayout.setPtrHandler(new PtrHandler() {
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
