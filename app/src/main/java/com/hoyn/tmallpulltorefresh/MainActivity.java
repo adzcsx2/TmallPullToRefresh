@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
     private HoynPtrFrameLayout ptrFrameLayout;
     private HoynRadioGroup group;
     private RadioButton button1, button2;
-    private View progressBar;
+//    private View progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
         ptrFrameLayout = (HoynPtrFrameLayout) findViewById(R.id.store_house_ptr_frame);
         View view_header = LayoutInflater.from(this).inflate(R.layout.view_header, null);
         group = (HoynRadioGroup) view_header.findViewById(R.id.group);
-        progressBar = view_header.findViewById(R.id.progressBar);
+//        progressBar = view_header.findViewById(R.id.progressBar);
         button1 = (RadioButton) group.findViewById(R.id.radioButton1);
         button2 = (RadioButton) group.findViewById(R.id.radioButton2);
         button1.setOnClickListener(new View.OnClickListener() {
@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 
         ptrFrameLayout.setMyRadioGroup(group);
         ptrFrameLayout.setHeaderView(view_header);
-        ptrFrameLayout.setProgressBar(progressBar);
+//        ptrFrameLayout.setProgressBar(progressBar);
 
 
         ptrFrameLayout.setPtrHandler(new PtrHandler() {

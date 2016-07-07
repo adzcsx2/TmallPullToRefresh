@@ -90,11 +90,13 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             }
         }
         //show the progressBar
-        if (e.getAction() == MotionEvent.ACTION_DOWN && progressBar != null) {
-            progressBar.setVisibility(INVISIBLE);
-        } else if (e.getAction() == MotionEvent.ACTION_UP && progressBar != null) {
+        if (e.getAction() == MotionEvent.ACTION_DOWN ) {
+            myRadioGroup.dismissProgressBar();
+//            progressBar.setVisibility(INVISIBLE);
+        } else if (e.getAction() == MotionEvent.ACTION_UP ) {
             if (myRadioGroup.isHeaderShow()) {
-                progressBar.setVisibility(VISIBLE);
+//                progressBar.setVisibility(VISIBLE);
+                myRadioGroup.showProgressBar();
             }
         }
         return superEvent;
