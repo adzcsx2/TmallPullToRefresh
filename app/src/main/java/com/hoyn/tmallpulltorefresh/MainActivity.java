@@ -14,7 +14,8 @@ public class MainActivity extends Activity {
     private HoynPtrFrameLayout ptrFrameLayout;
     private HoynRadioGroup group;
     private RadioButton button1, button2;
-//    private View progressBar;
+
+    //    private View progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,20 +43,20 @@ public class MainActivity extends Activity {
         ptrFrameLayout.setHeaderView(view_header);
 //        ptrFrameLayout.setProgressBar(progressBar);
 
-
-        ptrFrameLayout.setPtrHandler(new PtrHandler() {
+        ptrFrameLayout.setOnFiggerUpListener(new HoynPtrFrameLayout.OnFiggerUpListener() {
             @Override
-            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                return true;
-            }
+            public void onFiggerUp(int checkedId) {
+                if (checkedId == button2.getId()) {
+                    ptrFrameLayout.showProgressBar();
+                    Toast.makeText(MainActivity.this, "选择了button2", Toast.LENGTH_SHORT).show();
 
-            @Override
-            public void onRefreshBegin(PtrFrameLayout frame) {
-                frame.postDelayed(new Runnable() {
+                } else {
+                    ptrFrameLayout.scrollToTop();
+                    Toast.makeText(MainActivity.this, "选择了button1", Toast.LENGTH_SHORT).show();
+                }
+                ptrFrameLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        RadioButton rb = (RadioButton) group.findViewById(group.getCheckedRadioButtonId());
-                        rb.performClick();
                         ptrFrameLayout.refreshComplete();
                     }
                 }, 1000);

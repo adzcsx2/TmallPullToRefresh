@@ -4,9 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import in.srain.cube.views.ptr.indicator.PtrIndicator;
 
@@ -22,12 +26,17 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
     private HoynRadioGroup myRadioGroup;
     // the relevant of screen
     private PtrIndicator mPtrIndicator;
-    // loading progressbar
-    private View progressBar;
+    // the scroll util
+    private ScrollChecker mScrollChecker;
     // draw the shadow paint
     private Paint mPaint;
     // draw the shadow transparent alpha
     private float alpha;
+    // control progressBar show or hide
+    private LinearLayout progressLayout;
+    //custom progressBar,if null,use the default progressbar
+    private ProgressBar progressBar;
+    private OnFiggerUpListener onFiggerUpListener;
 
     public HoynRadioGroup getMyRadioGroup() {
         return myRadioGroup;
@@ -37,8 +46,12 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         this.myRadioGroup = myRadioGroup;
     }
 
-    public void setProgressBar(View progressBar) {
+    public void setProgressBar(ProgressBar progressBar) {
         this.progressBar = progressBar;
+    }
+
+    public void setOnFiggerUpListener(OnFiggerUpListener onFiggerUpListener) {
+        this.onFiggerUpListener = onFiggerUpListener;
     }
 
     public HoynPtrFrameLayout(Context context) {
@@ -59,7 +72,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
     private void init() {
         //let this view can draw
         setWillNotDraw(false);
-
+        mScrollChecker = getScrollChecker();
         mPtrIndicator = getPtrIndicator();
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setColor(Color.BLACK);
@@ -90,13 +103,14 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             }
         }
         //show the progressBar
-        if (e.getAction() == MotionEvent.ACTION_DOWN ) {
-            myRadioGroup.dismissProgressBar();
-//            progressBar.setVisibility(INVISIBLE);
-        } else if (e.getAction() == MotionEvent.ACTION_UP ) {
+        if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            hideProgressBar();
+            onPositionChange(true, PTR_STATUS_LOADING, mPtrIndicator);
+        } else if (e.getAction() == MotionEvent.ACTION_UP && onFiggerUpListener != null) {
             if (myRadioGroup.isHeaderShow()) {
-//                progressBar.setVisibility(VISIBLE);
-                myRadioGroup.showProgressBar();
+                onFiggerUpListener.onFiggerUp(myRadioGroup.getCheckedRadioButtonId());
+            } else {
+                refreshComplete();
             }
         }
         return superEvent;
@@ -113,6 +127,45 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         invalidate();
     }
 
+
+    public void showProgressBar() {
+        progressLayout.setVisibility(VISIBLE);
+    }
+
+    public void hideProgressBar() {
+        progressLayout.setVisibility(INVISIBLE);
+    }
+
+    public void scrollToTop() {
+        tryScrollBackToTop();
+    }
+
+    /**
+     * add the progressBar
+     */
+    @Override
+    protected void onLayout(boolean flag, int i, int j, int k, int l) {
+        super.onLayout(flag, i, j, k, l);
+        RelativeLayout headerView = (RelativeLayout) getHeaderView();
+        if (progressLayout == null) {
+            progressLayout = new LinearLayout(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.height = getHeaderView().getHeight();
+            progressLayout.setGravity(Gravity.CENTER);
+            if (Build.VERSION.SDK_INT >= 16) {
+                progressLayout.setBackground(getHeaderView().getBackground());
+            } else {
+                progressLayout.setBackgroundColor(Color.WHITE);
+            }
+            if (progressBar == null) {
+                progressBar = new ProgressBar(getContext());
+            }
+            progressLayout.addView(progressBar);
+            headerView.addView(progressLayout, params);
+            progressLayout.setVisibility(INVISIBLE);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -121,5 +174,9 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         getChildAt(0).setAlpha(1 - alpha);
     }
 
+
+    public interface OnFiggerUpListener {
+        void onFiggerUp(int checkedId);
+    }
 
 }

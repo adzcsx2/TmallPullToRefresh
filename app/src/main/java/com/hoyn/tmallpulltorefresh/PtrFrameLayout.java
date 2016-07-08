@@ -25,7 +25,7 @@ public class PtrFrameLayout extends ViewGroup {
 
     // status enum
     public final static byte PTR_STATUS_INIT = 1;
-    private byte mStatus = PTR_STATUS_INIT;
+    protected byte mStatus = PTR_STATUS_INIT;
     public final static byte PTR_STATUS_PREPARE = 2;
     public final static byte PTR_STATUS_LOADING = 3;
     public final static byte PTR_STATUS_COMPLETE = 4;
@@ -115,6 +115,10 @@ public class PtrFrameLayout extends ViewGroup {
 
         final ViewConfiguration conf = ViewConfiguration.get(getContext());
         mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
+    }
+
+    public ScrollChecker getScrollChecker() {
+        return mScrollChecker;
     }
 
     public PtrIndicator getPtrIndicator() {
@@ -455,7 +459,7 @@ public class PtrFrameLayout extends ViewGroup {
     private void onRelease(boolean stayForLoading) {
 
         tryToPerformRefresh();
-
+        mStatus = PTR_STATUS_LOADING;
         if (mStatus == PTR_STATUS_LOADING) {
             // keep header for fresh
             if (mKeepHeaderWhenRefresh) {
@@ -500,7 +504,7 @@ public class PtrFrameLayout extends ViewGroup {
      * Scroll back to to if is not under touch
      * add a interface
      */
-    private void tryScrollBackToTop() {
+    protected void tryScrollBackToTop() {
         if (!mPtrIndicator.isUnderTouch()) {
             mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader);
         }

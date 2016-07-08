@@ -2,22 +2,15 @@ package com.hoyn.tmallpulltorefresh;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewParent;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +74,9 @@ public class HoynRadioGroup extends RadioGroup {
         this.isHeaderShow = isHeaderShow;
     }
 
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
 
     private void paintInit() {
         setWillNotDraw(false);
@@ -374,49 +370,6 @@ public class HoynRadioGroup extends RadioGroup {
                 }
             }
         }
-    }
-
-    private LinearLayout progressLayout;
-    private ViewParent parent;
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        parent = getParent();
-        if (parent instanceof RelativeLayout) {
-            progressLayout = new LinearLayout(getContext());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            params.height = b;
-            progressLayout.setLayoutParams(params);
-            progressLayout.setTag(TAG);
-            progressLayout.setGravity(Gravity.CENTER);
-            if (Build.VERSION.SDK_INT >= 16) {
-                progressLayout.setBackground(((RelativeLayout) parent).getBackground());
-            } else {
-                progressLayout.setBackgroundColor(Color.WHITE);
-            }
-            View layoutView = ((RelativeLayout) parent).findViewWithTag(TAG);
-            if (layoutView != null) {
-                ((RelativeLayout) parent).removeView(layoutView);
-            }
-            ProgressBar progressBar = new ProgressBar(getContext());
-            progressLayout.addView(progressBar);
-            ((RelativeLayout) parent).addView(progressLayout, params);
-            progressLayout.setVisibility(INVISIBLE);
-            progressLayout = (LinearLayout) ((RelativeLayout) parent).findViewWithTag(TAG);
-        } else {
-            Log.e(TAG, "the parentView must be RelativeLayout otherwise the progressbar can't show");
-        }
-    }
-
-    public void showProgressBar() {
-        if (progressLayout != null)
-            progressLayout.setVisibility(VISIBLE);
-    }
-
-    public void dismissProgressBar() {
-        if (progressLayout != null)
-            progressLayout.setVisibility(INVISIBLE);
     }
 
 
