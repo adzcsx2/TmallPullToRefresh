@@ -21,7 +21,7 @@ import in.srain.cube.views.ptr.indicator.PtrIndicator;
 public class HoynPtrFrameLayout extends PtrFrameLayout {
     private static final String TAG = "PtrFrameLayout";
     //the effective max height rate, the effective height is between header height and  header height * OUTSIDE_RATE
-    private static final float OUTSIDE_RATE = 2f;
+    private static final float OUTSIDE_RATE = 2.0f;
     // the header view
     private HoynRadioGroup myRadioGroup;
     // the relevant of screen
@@ -37,7 +37,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
     //custom progressBar,if null,use the default progressbar
     private ProgressBar progressBar;
     private OnFiggerUpListener onFiggerUpListener;
-
+    private boolean isShowTab = false;
     public HoynRadioGroup getMyRadioGroup() {
         return myRadioGroup;
     }
@@ -83,7 +83,6 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        boolean superEvent = super.dispatchTouchEvent(e);
         if (myRadioGroup != null) {
             //put touchEvent to customRadioGroup
             myRadioGroup.dispatchTouchEvent(e);
@@ -93,7 +92,8 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             if (off_y < headerHeight) {
                 myRadioGroup.setIsHeaderShow(false);
                 //In order to Alpha change fast , so off_y/3.
-                myRadioGroup.setAlpha(off_y / 3 / headerHeight);
+//                myRadioGroup.setAlpha(off_y / 3 / headerHeight + myRadioGroup.getTabViewHeight());
+                myRadioGroup.setAlpha(off_y / 3 / headerHeight );
             } else if (off_y > headerHeight * OUTSIDE_RATE) {
                 myRadioGroup.setIsHeaderShow(false);
                 myRadioGroup.setAlpha(1);
@@ -104,17 +104,30 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         }
         //show the progressBar
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            isShowTab = false;
             hideProgressBar();
             onPositionChange(true, PTR_STATUS_LOADING, mPtrIndicator);
         } else if (e.getAction() == MotionEvent.ACTION_UP && onFiggerUpListener != null) {
             if (myRadioGroup.isHeaderShow()) {
                 onFiggerUpListener.onFiggerUp(myRadioGroup.getCheckedRadioButtonId());
             } else {
+//                if (mPtrIndicator.getCurrentPosY() > getHeaderHeight() * OUTSIDE_RATE) {
+//                    if(myRadioGroup.getTabView()!=null) {
+//                        isShowTab = true;
+////                        setFixHeader(true);
+////                        mScrollChecker.tryToScrollTo(mPtrIndicator.getHeaderHeight(), (int) getDurationToCloseHeader());
+//                        myRadioGroup.getTabView().setAlpha(1);
+//                    }
+//                } else {
+//                    refreshComplete();
+//                }
                 refreshComplete();
+
             }
         }
-        return superEvent;
+        return super.dispatchTouchEvent(e);
     }
+
 
     @Override
     protected void onPositionChange(boolean isInTouching, byte status, PtrIndicator mPtrIndicator) {
@@ -124,6 +137,16 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             alpha = 0.8f;
         }
         mPaint.setAlpha((int) (255 * alpha));
+        //set tabview alpha
+//        View tabView = myRadioGroup.getTabView();
+//        if (tabView != null) {
+//            if(!isShowTab){
+//                float tabAlpha = (mPtrIndicator.getCurrentPosY() - mPtrIndicator.getHeaderHeight()) / (float) mPtrIndicator.getHeaderHeight();
+//                tabView.setAlpha(tabAlpha);
+//            }else{
+//                tabView.setAlpha(1);
+//            }
+//        }
         invalidate();
     }
 
@@ -164,6 +187,13 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             headerView.addView(progressLayout, params);
             progressLayout.setVisibility(INVISIBLE);
         }
+//        else {
+//            ViewGroup.LayoutParams params = progressLayout.getLayoutParams();
+//            if (params.height != getHeaderView().getHeight()) {
+//                params.height = getHeaderView().getHeight();
+//                progressLayout.setLayoutParams(params);
+//            }
+//        }
     }
 
     @Override

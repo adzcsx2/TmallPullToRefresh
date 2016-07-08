@@ -22,7 +22,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.layout);
         ptrFrameLayout = (HoynPtrFrameLayout) findViewById(R.id.store_house_ptr_frame);
         View view_header = LayoutInflater.from(this).inflate(R.layout.view_header, null);
+        View tabview = LayoutInflater.from(this).inflate(R.layout.view_header_tab, null);
+        tabview.findViewById(R.id.iv_home).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "点击了首页", Toast.LENGTH_SHORT).show();
+            }
+        });
         group = (HoynRadioGroup) view_header.findViewById(R.id.group);
+        group.setTabView(tabview);
 //        progressBar = view_header.findViewById(R.id.progressBar);
         button1 = (RadioButton) group.findViewById(R.id.radioButton1);
         button2 = (RadioButton) group.findViewById(R.id.radioButton2);

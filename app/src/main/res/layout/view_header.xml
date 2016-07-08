@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <RadioButton
@@ -18,9 +19,8 @@
             android:layout_height="100dp"
             android:layout_weight="1"
             android:button="@null"
-            android:gravity="center"
-            android:text="Button1" />
-
+            android:drawableTop="@drawable/refresh_select"
+            android:paddingTop="30dp" />
 
         <RadioButton
             android:id="@+id/radioButton2"
@@ -29,8 +29,8 @@
             android:layout_weight="1"
             android:button="@null"
             android:checked="true"
-            android:gravity="center"
-            android:text="Button2" />
+            android:drawableTop="@drawable/refresh_default"
+            android:paddingTop="30dp" />
     </com.hoyn.tmallpulltorefresh.HoynRadioGroup>
 
 

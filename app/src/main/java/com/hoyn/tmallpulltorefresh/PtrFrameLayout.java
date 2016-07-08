@@ -277,6 +277,14 @@ public class PtrFrameLayout extends ViewGroup {
         }
     }
 
+
+    //can fix the header
+    private boolean fixHeader = false;
+
+    public void setFixHeader(boolean fixHeader) {
+        this.fixHeader = fixHeader;
+    }
+
     public boolean dispatchTouchEventSupper(MotionEvent e) {
         return super.dispatchTouchEvent(e);
     }
@@ -290,6 +298,10 @@ public class PtrFrameLayout extends ViewGroup {
         switch (action) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (fixHeader) {
+                    fixHeader = false;
+                    return dispatchTouchEventSupper(e);
+                }
                 mPtrIndicator.onRelease();
                 if (mPtrIndicator.hasLeftStartPosition()) {
                     if (DEBUG) {
@@ -509,8 +521,6 @@ public class PtrFrameLayout extends ViewGroup {
             mScrollChecker.tryToScrollTo(PtrIndicator.POS_START, mDurationToCloseHeader);
         }
     }
-
-
 
 
     /**

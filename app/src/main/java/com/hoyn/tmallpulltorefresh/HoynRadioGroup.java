@@ -47,6 +47,9 @@ public class HoynRadioGroup extends RadioGroup {
     private float radius;//下拉过程中 圆动画的半径
     private float alpha;//下拉过程中 控件的透明度
 
+    private View tabView;
+    private int tabViewHeight = 0;
+
     public HoynRadioGroup(Context context) {
         super(context);
         paintInit();
@@ -55,6 +58,14 @@ public class HoynRadioGroup extends RadioGroup {
     public HoynRadioGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
         paintInit();
+    }
+
+    public View getTabView() {
+        return tabView;
+    }
+
+    public void setTabView(View tabView) {
+        this.tabView = tabView;
     }
 
     @Override
@@ -76,6 +87,10 @@ public class HoynRadioGroup extends RadioGroup {
 
     public int getCurrentIndex() {
         return currentIndex;
+    }
+
+    public int getTabViewHeight() {
+        return tabViewHeight;
     }
 
     private void paintInit() {
@@ -370,8 +385,33 @@ public class HoynRadioGroup extends RadioGroup {
                 }
             }
         }
+
+
     }
 
+    //add the footView
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+//        RelativeLayout parent = (RelativeLayout) getParent();
+//        if (tabView != null) {
+//            if (parent.findViewWithTag(TAG) == null) {
+//                //let the footerView  translation is 0
+//                //set a casual id which can let groupView below the tabView
+//                tabView.setAlpha(0);
+//                tabView.setId(android.R.id.text1);
+//                tabView.setTag(TAG);
+//                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                parent.addView(tabView, layoutParams);
+//
+//                RelativeLayout.LayoutParams this_params = (RelativeLayout.LayoutParams) getLayoutParams();
+//                this_params.addRule(RelativeLayout.BELOW, tabView.getId());
+//                setLayoutParams(this_params);
+//
+//                tabViewHeight = tabView.getHeight();
+//            }
+//        }
+    }
 
     /**
      * the animation callback listener
