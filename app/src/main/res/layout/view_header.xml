@@ -19,7 +19,7 @@
             android:layout_height="100dp"
             android:layout_weight="1"
             android:button="@null"
-            android:drawableTop="@drawable/refresh_select"
+            android:drawableTop="@drawable/selector_share"
             android:paddingTop="30dp" />
 
         <RadioButton
@@ -29,7 +29,7 @@
             android:layout_weight="1"
             android:button="@null"
             android:checked="true"
-            android:drawableTop="@drawable/refresh_default"
+            android:drawableTop="@drawable/selector_refresh"
             android:paddingTop="30dp" />
     </com.hoyn.tmallpulltorefresh.HoynRadioGroup>
 

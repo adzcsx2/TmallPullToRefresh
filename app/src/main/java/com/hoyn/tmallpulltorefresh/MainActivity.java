@@ -13,7 +13,7 @@ public class MainActivity extends Activity {
     private static final String TAG = "PtrFrameLayout";
     private HoynPtrFrameLayout ptrFrameLayout;
     private HoynRadioGroup group;
-    private RadioButton button1, button2;
+    private RadioButton btn_share, btn_refresh;
 
     //    private View progressBar;
     @Override
@@ -30,42 +30,40 @@ public class MainActivity extends Activity {
             }
         });
         group = (HoynRadioGroup) view_header.findViewById(R.id.group);
-        group.setTabView(tabview);
-//        progressBar = view_header.findViewById(R.id.progressBar);
-        button1 = (RadioButton) group.findViewById(R.id.radioButton1);
-        button2 = (RadioButton) group.findViewById(R.id.radioButton2);
-        button1.setOnClickListener(new View.OnClickListener() {
+        ptrFrameLayout.setTabView(tabview);
+
+        btn_share = (RadioButton) group.findViewById(R.id.radioButton1);
+        btn_refresh = (RadioButton) group.findViewById(R.id.radioButton2);
+        btn_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "选择了button1", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "选择了分享", Toast.LENGTH_SHORT).show();
             }
         });
-        button2.setOnClickListener(new View.OnClickListener() {
+        btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "选择了button2", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "选择了刷新", Toast.LENGTH_SHORT).show();
             }
         });
 
         ptrFrameLayout.setMyRadioGroup(group);
         ptrFrameLayout.setHeaderView(view_header);
-//        ptrFrameLayout.setProgressBar(progressBar);
 
         ptrFrameLayout.setOnFiggerUpListener(new HoynPtrFrameLayout.OnFiggerUpListener() {
             @Override
             public void onFiggerUp(int checkedId) {
-                if (checkedId == button2.getId()) {
-                    ptrFrameLayout.showProgressBar();
-                    Toast.makeText(MainActivity.this, "选择了button2", Toast.LENGTH_SHORT).show();
-
-                } else {
+                if (checkedId == btn_share.getId()) {
                     ptrFrameLayout.scrollToTop();
-                    Toast.makeText(MainActivity.this, "选择了button1", Toast.LENGTH_SHORT).show();
+                    btn_share.performClick();
+                } else {
+                    ptrFrameLayout.showProgressBar();
+                    btn_refresh.performClick();
                 }
                 ptrFrameLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ptrFrameLayout.refreshComplete();
+                        ptrFrameLayout.completeRefresh();
                     }
                 }, 1000);
             }

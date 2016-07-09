@@ -39,15 +39,15 @@ public class HoynRadioGroup extends RadioGroup {
     private boolean isShowCircleAnimation = true; //下拉过程中是否应该显示圆的动画
     private boolean isCircleAnimating = false; //判断显示圆的动画是否在执行
 
-    private static final int createCircleDuration = 200; //圆出现动画执行时间
-    private static final int createCircleInterval = 20; //动画执行频率
+    private static final int createCircleDuration = 150; //圆出现动画执行时间
+    private static final int createCircleInterval = 10; //动画执行频率
     private static final int animatorDuration = 200;//圆左右移动动画执行时间
     private static final int animatorInterval = 20; //动画执行频率
 
     private float radius;//下拉过程中 圆动画的半径
     private float alpha;//下拉过程中 控件的透明度
 
-    private View tabView;
+//    private View tabView;
     private int tabViewHeight = 0;
 
     public HoynRadioGroup(Context context) {
@@ -60,13 +60,13 @@ public class HoynRadioGroup extends RadioGroup {
         paintInit();
     }
 
-    public View getTabView() {
-        return tabView;
-    }
-
-    public void setTabView(View tabView) {
-        this.tabView = tabView;
-    }
+//    public View getTabView() {
+//        return tabView;
+//    }
+//
+//    public void setTabView(View tabView) {
+//        this.tabView = tabView;
+//    }
 
     @Override
     public void setAlpha(float alpha) {
@@ -112,8 +112,21 @@ public class HoynRadioGroup extends RadioGroup {
         isShowCircleAnimation = true; //下拉过程中是否应该显示圆的动画
     }
 
+    private boolean isShowTab = false;
+
+    public boolean isShowTab() {
+        return isShowTab;
+    }
+
+    public void setIsShowTab(boolean isShowTab) {
+        this.isShowTab = isShowTab;
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        if(isShowTab){
+            return false;
+        }
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //getCurrentIndex
@@ -174,7 +187,7 @@ public class HoynRadioGroup extends RadioGroup {
                             final View currentChild = getChildAt(currentIndex);
                             if (currentChild != null && currentChild instanceof RadioButton) {
                                 //setAnimation
-                                animationStart(currentIndex, new AnimatorListener(currentChild, preChild));
+                                moveAnimationStart(currentIndex, new AnimatorListener(currentChild, preChild));
                             }
                         }
                     }
@@ -186,8 +199,10 @@ public class HoynRadioGroup extends RadioGroup {
                 invalidate();
                 break;
         }
-        return super.dispatchTouchEvent(ev);
+
+        return false;
     }
+
 
     /**
      * create circle animation
@@ -195,19 +210,23 @@ public class HoynRadioGroup extends RadioGroup {
      * @param from
      * @param to
      * @param duration
-     * @param isCreate
+     * @param ShowCircle
      * @param ev       get the down_x when animation is end;
      */
-    private void circleAnimationStart(final float from, final float to, final int duration, final boolean isCreate, final MotionEvent ev) {
+    private void circleAnimationStart(final float from, final float to, final int duration, final boolean ShowCircle, final MotionEvent ev) {
         isCircleAnimating = true;
-        if (isCreate) {
+        if (ShowCircle) {
+            //let the radiobutton is checked after the circle is showed;
             //if the animation is create circle
             if (from > to) {
-                isShowCircle = isCreate;
+                isShowCircle = ShowCircle;
                 isAnimating = false;
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
+//                setCurrentChecked(true);
+//                RadioButton rb = (RadioButton) getChildAt(currentIndex);
+//                rb.setChecked(true);
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -218,16 +237,19 @@ public class HoynRadioGroup extends RadioGroup {
                 @Override
                 public void run() {
                     float addInterval = to / (createCircleDuration / createCircleInterval);
-                    circleAnimationStart(from + addInterval, to, duration - createCircleInterval, isCreate, ev);
+                    circleAnimationStart(from + addInterval, to, duration - createCircleInterval, ShowCircle, ev);
                 }
             }, createCircleInterval);
         } else {
             if (from < 0) {
-                isShowCircle = isCreate;
+                isShowCircle = ShowCircle;
                 isAnimating = false;
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
+//                setCurrentChecked(false);
+//                RadioButton rb = (RadioButton) getChildAt(currentIndex);
+//                rb.setChecked(false);
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -238,17 +260,18 @@ public class HoynRadioGroup extends RadioGroup {
                 @Override
                 public void run() {
                     float addInterval = circle.getRadius() / (createCircleDuration / createCircleInterval);
-                    circleAnimationStart(from - addInterval, to, duration - createCircleInterval, isCreate, ev);
+                    circleAnimationStart(from - addInterval, to, duration - createCircleInterval, ShowCircle, ev);
                 }
             }, createCircleInterval);
         }
-
     }
 
     public void setRadius(float radius) {
         this.radius = radius;
         invalidate();
     }
+
+
 
     /**
      * move animation.
@@ -257,7 +280,7 @@ public class HoynRadioGroup extends RadioGroup {
      * @param index
      * @param onAnimatorListener
      */
-    private void animationStart(final int index, OnAnimatorListener onAnimatorListener) {
+    private void moveAnimationStart(final int index, OnAnimatorListener onAnimatorListener) {
         final Circle mCurrentCircle = circleList.get(index);
         int preX = circle.getX();
         int currentX = mCurrentCircle.getX();
@@ -368,6 +391,7 @@ public class HoynRadioGroup extends RadioGroup {
         //get children
         childCount = getChildCount();
         circleList.clear();
+        boolean hasChecked = false;
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child instanceof RadioButton) {
@@ -380,37 +404,18 @@ public class HoynRadioGroup extends RadioGroup {
                 //add circles to List for simple to manager;
                 circleList.add(new Circle(center_x, center_y, width < height ? width : height / 2));
                 if (((RadioButton) child).isChecked()) {
+                    hasChecked = true;
                     //calculate the current circle centerPoint and radius
                     circle = new Circle(center_x, center_y, width < height ? width : height / 2);
+                    currentIndex = i;
                 }
             }
         }
+        if(!hasChecked){
+            Log.e(TAG,"must select a radiobutton");
+        }
 
 
-    }
-
-    //add the footView
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-//        RelativeLayout parent = (RelativeLayout) getParent();
-//        if (tabView != null) {
-//            if (parent.findViewWithTag(TAG) == null) {
-//                //let the footerView  translation is 0
-//                //set a casual id which can let groupView below the tabView
-//                tabView.setAlpha(0);
-//                tabView.setId(android.R.id.text1);
-//                tabView.setTag(TAG);
-//                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//                parent.addView(tabView, layoutParams);
-//
-//                RelativeLayout.LayoutParams this_params = (RelativeLayout.LayoutParams) getLayoutParams();
-//                this_params.addRule(RelativeLayout.BELOW, tabView.getId());
-//                setLayoutParams(this_params);
-//
-//                tabViewHeight = tabView.getHeight();
-//            }
-//        }
     }
 
     /**
