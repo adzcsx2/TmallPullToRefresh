@@ -1,4 +1,4 @@
 # TmallPullToRefresh
 仿天猫的下拉刷新
  
-![](http://image18-c.poco.cn/mypoco/myphoto/20160709/15/18315628520160709150426085.gif?423x705_110)
+![](http://i2.piimg.com/1949/f960b81d9be32154.gif)
