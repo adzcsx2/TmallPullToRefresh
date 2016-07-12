@@ -41,13 +41,13 @@ public class HoynRadioGroup extends RadioGroup {
 
     private static final int createCircleDuration = 150; //圆出现动画执行时间
     private static final int createCircleInterval = 10; //动画执行频率
-    private static final int animatorDuration = 200;//圆左右移动动画执行时间
-    private static final int animatorInterval = 20; //动画执行频率
+    private static final int animatorDuration = 100;//圆左右移动动画执行时间
+    private static final int animatorInterval = 10; //动画执行频率
 
     private float radius;//下拉过程中 圆动画的半径
     private float alpha;//下拉过程中 控件的透明度
 
-//    private View tabView;
+    //    private View tabView;
     private int tabViewHeight = 0;
 
     public HoynRadioGroup(Context context) {
@@ -60,13 +60,6 @@ public class HoynRadioGroup extends RadioGroup {
         paintInit();
     }
 
-//    public View getTabView() {
-//        return tabView;
-//    }
-//
-//    public void setTabView(View tabView) {
-//        this.tabView = tabView;
-//    }
 
     @Override
     public void setAlpha(float alpha) {
@@ -92,6 +85,11 @@ public class HoynRadioGroup extends RadioGroup {
     public int getTabViewHeight() {
         return tabViewHeight;
     }
+
+    public boolean isCircleAnimating() {
+        return isCircleAnimating;
+    }
+
 
     private void paintInit() {
         setWillNotDraw(false);
@@ -124,7 +122,7 @@ public class HoynRadioGroup extends RadioGroup {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if(isShowTab){
+        if (isShowTab) {
             return false;
         }
         switch (ev.getAction()) {
@@ -150,10 +148,10 @@ public class HoynRadioGroup extends RadioGroup {
                         isShowCircleAnimation = true;
                         if (isHeaderShow) {
                             //open the circle when the header is show complete
-                            circleAnimationStart(0, circle.getRadius(), createCircleDuration, true, ev);
+                            showCircleAnimationStart(ev);
                         } else {
                             //close the circle when the header is not show or the height more than the headerView's height * 2;
-                            circleAnimationStart(circle.getRadius(), 0, createCircleDuration, false, ev);
+                            dismissCircleAnimationStart(ev);
                         }
                         return super.dispatchTouchEvent(ev);
                     }
@@ -211,9 +209,9 @@ public class HoynRadioGroup extends RadioGroup {
      * @param to
      * @param duration
      * @param ShowCircle
-     * @param ev       get the down_x when animation is end;
+     * @param ev         get the down_x when animation is end;
      */
-    private void circleAnimationStart(final float from, final float to, final int duration, final boolean ShowCircle, final MotionEvent ev) {
+    public void circleAnimationStart(final float from, final float to, final int duration, final boolean ShowCircle, final MotionEvent ev) {
         isCircleAnimating = true;
         if (ShowCircle) {
             //let the radiobutton is checked after the circle is showed;
@@ -224,9 +222,6 @@ public class HoynRadioGroup extends RadioGroup {
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
-//                setCurrentChecked(true);
-//                RadioButton rb = (RadioButton) getChildAt(currentIndex);
-//                rb.setChecked(true);
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -247,9 +242,6 @@ public class HoynRadioGroup extends RadioGroup {
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
-//                setCurrentChecked(false);
-//                RadioButton rb = (RadioButton) getChildAt(currentIndex);
-//                rb.setChecked(false);
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -271,7 +263,19 @@ public class HoynRadioGroup extends RadioGroup {
         invalidate();
     }
 
+    /**
+     * 显示圆动画 开始
+     */
+    public void showCircleAnimationStart(MotionEvent ev){
+        circleAnimationStart(0, circle.getRadius(), createCircleDuration, true, ev);
+    }
 
+    /**
+     * 显示圆动画，结束
+     */
+    public void dismissCircleAnimationStart(MotionEvent ev){
+        circleAnimationStart(circle.getRadius(), 0, createCircleDuration, false, ev);
+    }
 
     /**
      * move animation.
@@ -411,8 +415,8 @@ public class HoynRadioGroup extends RadioGroup {
                 }
             }
         }
-        if(!hasChecked){
-            Log.e(TAG,"must select a radiobutton");
+        if (!hasChecked) {
+            Log.e(TAG, "must select a radiobutton");
         }
 
 

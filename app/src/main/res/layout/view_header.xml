@@ -16,21 +16,21 @@
         <RadioButton
             android:id="@+id/radioButton1"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="70dp"
             android:layout_weight="1"
             android:button="@null"
             android:drawableTop="@drawable/selector_share"
-            android:paddingTop="30dp" />
+            android:paddingTop="17dp" />
 
         <RadioButton
             android:id="@+id/radioButton2"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="70dp"
             android:layout_weight="1"
             android:button="@null"
             android:checked="true"
             android:drawableTop="@drawable/selector_refresh"
-            android:paddingTop="30dp" />
+            android:paddingTop="17dp" />
     </com.hoyn.tmallpulltorefresh.HoynRadioGroup>
 
 

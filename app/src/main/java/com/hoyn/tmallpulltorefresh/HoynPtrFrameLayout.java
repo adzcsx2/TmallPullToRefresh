@@ -111,7 +111,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
                 myRadioGroup.setIsHeaderShow(false);
                 //In order to Alpha change fast , so off_y/3.
                 myRadioGroup.setAlpha(-0.5f + off_y / headerHeight);
-            } else if (off_y > getPtrIndicator().getHeaderHeight() * (hasTabView ? 1 : NOT_HAS_TABVIEW_RATE)) {
+            } else if (off_y > (getPtrIndicator().getHeaderHeight() + (hasTabView ? tabView.getHeight() : 0)) * (hasTabView ? 1 : NOT_HAS_TABVIEW_RATE)) {
                 myRadioGroup.setIsHeaderShow(false);
                 myRadioGroup.setAlpha(1);
             } else {
@@ -131,14 +131,18 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
                     scrollToTop();
                     return superEvent;
                 } else {
+                    //if is refresh
                     scrollTo(myRadioGroup.getHeight());
                     onFiggerUpListener.onFiggerUp(myRadioGroup.getCheckedRadioButtonId());
                 }
             } else {
-//                if (mPtrIndicator.getCurrentPosY() > getHeaderHeight() * OUTSIDE_RATE && hasTabView) {
                 if (mPtrIndicator.getCurrentPosY() > getHeaderHeight() && hasTabView) {
+                    //if tabview show
                     setShowTab(true);
                     mScrollChecker.tryToScrollTo(mPtrIndicator.getHeaderHeight(), (int) getDurationToCloseHeader());
+                    if(myRadioGroup.isCircleAnimating()){
+                        myRadioGroup.dismissCircleAnimationStart(e);
+                    }
                     tabView.setAlpha(1);
                 } else {
                     scrollToTop();
@@ -159,7 +163,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         //set tabview alpha
         if (hasTabView) {
             if (!isShowTab) {
-                float tabAlpha = (mPtrIndicator.getCurrentPosY() - myRadioGroup.getHeight()) / (float) tabView.getHeight();
+                float tabAlpha = (mPtrIndicator.getCurrentPosY() - myRadioGroup.getHeight() - tabView.getHeight()) / (float) tabView.getHeight();
                 // in order to set the alpha show naturally,so tabalpha / 1.5
                 tabAlpha = tabAlpha / 1.5f;
                 tabView.setAlpha(tabAlpha);
@@ -226,7 +230,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
             progressLayout.setVisibility(INVISIBLE);
         } else {
             RelativeLayout.LayoutParams groupParams = (RelativeLayout.LayoutParams) myRadioGroup.getLayoutParams();
-            int groupHeight = myRadioGroup.getHeight()+groupParams.topMargin+groupParams.bottomMargin;
+            int groupHeight = myRadioGroup.getHeight() + groupParams.topMargin + groupParams.bottomMargin;
 
             ViewGroup.LayoutParams params = progressLayout.getLayoutParams();
             if (params.height != groupHeight) {
@@ -259,7 +263,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
                 myRadioGroup.setLayoutParams(groupParams);
                 headerView.addView(myRadioGroup, groupParams);
                 //progressbar
-                int groupHeight = myRadioGroup.getHeight()+groupParams.topMargin+groupParams.bottomMargin;
+                int groupHeight = myRadioGroup.getHeight() + groupParams.topMargin + groupParams.bottomMargin;
 
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) progressLayout.getLayoutParams();
                 params.height = groupHeight;
@@ -277,7 +281,7 @@ public class HoynPtrFrameLayout extends PtrFrameLayout {
         super.onDraw(canvas);
         //draw the shadow and transparent alpha
         canvas.drawRect(0, mPtrIndicator.getCurrentPosY(), getWidth(), getHeight(), mPaint);
-//        getChildAt(0).setAlpha(1 - alpha);
+        getChildAt(0).setAlpha(1 - alpha);
     }
 
 
