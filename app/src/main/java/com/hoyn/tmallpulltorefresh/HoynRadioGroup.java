@@ -23,7 +23,7 @@ public class HoynRadioGroup extends RadioGroup {
     private static final String TAG = "HoynRadioGroup";
     private float down_x;
     private int childCount;
-    private int currentIndex;
+    private int currentIndex = -1;
     private Paint mPaint;
     private int mColor = 0xFFE61A5F;
     private Path path;
@@ -90,7 +90,6 @@ public class HoynRadioGroup extends RadioGroup {
         return isCircleAnimating;
     }
 
-
     private void paintInit() {
         setWillNotDraw(false);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -110,7 +109,7 @@ public class HoynRadioGroup extends RadioGroup {
         isShowCircleAnimation = true; //下拉过程中是否应该显示圆的动画
     }
 
-    private boolean isShowTab = false;
+    private boolean isShowTab = false; //用于判断是否显示header中的tabView
 
     public boolean isShowTab() {
         return isShowTab;
@@ -120,6 +119,8 @@ public class HoynRadioGroup extends RadioGroup {
         this.isShowTab = isShowTab;
     }
 
+    private boolean isFirstTouch = true;
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (isShowTab) {
@@ -128,9 +129,9 @@ public class HoynRadioGroup extends RadioGroup {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //getCurrentIndex
-                for (int i = 0; i < childCount; i++) {
-                    if (getChildAt(i).getId() == getCheckedRadioButtonId())
-                        currentIndex = i;
+                if (isFirstTouch) {
+                    ((RadioButton) findViewById(getCheckedRadioButtonId())).setChecked(false);
+                    isFirstTouch = false;
                 }
                 down_x = ev.getX();
                 animatInit();
@@ -191,11 +192,6 @@ public class HoynRadioGroup extends RadioGroup {
                     }
                 }
                 break;
-            case MotionEvent.ACTION_UP:
-                off_left = 0;
-                off_right = 0;
-                invalidate();
-                break;
         }
 
         return false;
@@ -207,21 +203,24 @@ public class HoynRadioGroup extends RadioGroup {
      *
      * @param from
      * @param to
-     * @param duration
-     * @param ShowCircle
-     * @param ev         get the down_x when animation is end;
+     * @param duration     animation duration
+     * @param isShowCircle show or dissmiss
+     * @param ev           get the down_x when animation is end;
      */
-    public void circleAnimationStart(final float from, final float to, final int duration, final boolean ShowCircle, final MotionEvent ev) {
+    public void circleAnimationStart(final float from, final float to, final int duration, final boolean isShowCircle, final MotionEvent ev) {
         isCircleAnimating = true;
-        if (ShowCircle) {
+        if (isShowCircle) {
             //let the radiobutton is checked after the circle is showed;
             //if the animation is create circle
-            if (from > to) {
-                isShowCircle = ShowCircle;
+            if (duration < 0) {
+                this.isShowCircle = isShowCircle;
                 isAnimating = false;
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
+                clearCheck();
+                RadioButton rb = (RadioButton) getChildAt(getCurrentIndex());
+                rb.setChecked(true);
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -232,16 +231,20 @@ public class HoynRadioGroup extends RadioGroup {
                 @Override
                 public void run() {
                     float addInterval = to / (createCircleDuration / createCircleInterval);
-                    circleAnimationStart(from + addInterval, to, duration - createCircleInterval, ShowCircle, ev);
+                    circleAnimationStart(from + addInterval, to, duration - createCircleInterval, isShowCircle, ev);
                 }
             }, createCircleInterval);
         } else {
-            if (from < 0) {
-                isShowCircle = ShowCircle;
+            if (duration < 0) {
+                this.isShowCircle = isShowCircle;
                 isAnimating = false;
                 isChangeState = isHeaderShow;
                 isShowCircleAnimation = false;
                 isCircleAnimating = false;
+                clearCheck();
+                RadioButton rb = (RadioButton) getChildAt(getCurrentIndex());
+                rb.setChecked(false);
+
                 if (ev != null)
                     down_x = ev.getX();
                 return;
@@ -252,7 +255,7 @@ public class HoynRadioGroup extends RadioGroup {
                 @Override
                 public void run() {
                     float addInterval = circle.getRadius() / (createCircleDuration / createCircleInterval);
-                    circleAnimationStart(from - addInterval, to, duration - createCircleInterval, ShowCircle, ev);
+                    circleAnimationStart(from - addInterval, to, duration - createCircleInterval, isShowCircle, ev);
                 }
             }, createCircleInterval);
         }
@@ -266,16 +269,20 @@ public class HoynRadioGroup extends RadioGroup {
     /**
      * 显示圆动画 开始
      */
-    public void showCircleAnimationStart(MotionEvent ev){
+    public void showCircleAnimationStart(MotionEvent ev) {
         circleAnimationStart(0, circle.getRadius(), createCircleDuration, true, ev);
     }
 
     /**
      * 显示圆动画，结束
      */
-    public void dismissCircleAnimationStart(MotionEvent ev){
+    public void dismissCircleAnimationStart(MotionEvent ev) {
         circleAnimationStart(circle.getRadius(), 0, createCircleDuration, false, ev);
     }
+
+    private int endX;
+    private int mOff_left;
+    private int mOff_right;
 
     /**
      * move animation.
@@ -294,11 +301,6 @@ public class HoynRadioGroup extends RadioGroup {
         onAnimatorListener.onAnimatorStart();
         animationHelper(preX, currentX, animatorDuration, onAnimatorListener);
     }
-
-
-    private int endX;
-    private int mOff_left;
-    private int mOff_right;
 
     /**
      * use recursion help animator to draw the view

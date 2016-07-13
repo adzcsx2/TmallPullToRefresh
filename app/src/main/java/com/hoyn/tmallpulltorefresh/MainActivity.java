@@ -9,18 +9,16 @@ import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
-
-    private static final String TAG = "PtrFrameLayout";
-    private HoynPtrFrameLayout ptrFrameLayout;
+    private static final String TAG = "MainActivity";
+    private HoynPtrFrameLayout hoynPtrFrameLayout;
     private HoynRadioGroup group;
     private RadioButton btn_share, btn_refresh;
 
-    //    private View progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout);
-        ptrFrameLayout = (HoynPtrFrameLayout) findViewById(R.id.store_house_ptr_frame);
+        hoynPtrFrameLayout = (HoynPtrFrameLayout) findViewById(R.id.store_house_ptr_frame);
         View view_header = LayoutInflater.from(this).inflate(R.layout.view_header, null);
         View tabview = LayoutInflater.from(this).inflate(R.layout.view_header_tab, null);
         tabview.findViewById(R.id.iv_home).setOnClickListener(new View.OnClickListener() {
@@ -30,8 +28,6 @@ public class MainActivity extends Activity {
             }
         });
         group = (HoynRadioGroup) view_header.findViewById(R.id.group);
-        ptrFrameLayout.setTabView(tabview);
-
         btn_share = (RadioButton) group.findViewById(R.id.radioButton1);
         btn_refresh = (RadioButton) group.findViewById(R.id.radioButton2);
         btn_share.setOnClickListener(new View.OnClickListener() {
@@ -46,28 +42,28 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, "选择了刷新", Toast.LENGTH_SHORT).show();
             }
         });
+        hoynPtrFrameLayout.setHeaderView(view_header);
+        hoynPtrFrameLayout.setTabView(tabview);
 
-        ptrFrameLayout.setMyRadioGroup(group);
-        ptrFrameLayout.setHeaderView(view_header);
-
-        ptrFrameLayout.setOnFiggerUpListener(new HoynPtrFrameLayout.OnFiggerUpListener() {
+        hoynPtrFrameLayout.setOnFiggerUpListener(new HoynPtrFrameLayout.OnFiggerUpListener() {
             @Override
             public void onFiggerUp(int checkedId) {
                 if (checkedId == btn_share.getId()) {
-                    ptrFrameLayout.scrollToTop();
+                    //选择分享，直接到顶部
+                    hoynPtrFrameLayout.scrollToTop();
                     btn_share.performClick();
                 } else {
-                    ptrFrameLayout.showProgressBar();
+                    //选择刷新，显示loading，数据读取完，再回到顶部
+                    hoynPtrFrameLayout.showProgressBar();
                     btn_refresh.performClick();
                 }
-                ptrFrameLayout.postDelayed(new Runnable() {
+                hoynPtrFrameLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ptrFrameLayout.completeRefresh();
+                        hoynPtrFrameLayout.completeRefresh();
                     }
                 }, 1000);
             }
         });
     }
-
 }

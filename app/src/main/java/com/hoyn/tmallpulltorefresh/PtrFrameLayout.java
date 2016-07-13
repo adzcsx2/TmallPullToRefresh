@@ -4,7 +4,6 @@ package com.hoyn.tmallpulltorefresh;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -303,9 +302,8 @@ public class PtrFrameLayout extends ViewGroup {
         switch (action) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                //add fixHeader
                 if (fixHeader) {
-//                    fixHeader = false;
-                    Log.e("aaa","qwe");
                     return dispatchTouchEventSupper(e);
                 }
                 mPtrIndicator.onRelease();
