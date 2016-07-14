@@ -138,7 +138,6 @@ public class HoynRadioGroup extends RadioGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!isAnimating) {
-                    //
                     for (int i = 0; i < childCount; i++) {
                         getChildAt(i).setAlpha(alpha);
                     }
@@ -191,6 +190,7 @@ public class HoynRadioGroup extends RadioGroup {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                //recover the circle when figger up
                 off_left = 0 ;
                 off_right = 0 ;
                 invalidate();
@@ -229,7 +229,7 @@ public class HoynRadioGroup extends RadioGroup {
                 return;
             }
             radius = from;
-            invalidate();
+            invalidate(); //update this view
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
