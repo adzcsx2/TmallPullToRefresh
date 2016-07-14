@@ -119,7 +119,6 @@ public class HoynRadioGroup extends RadioGroup {
         this.isShowTab = isShowTab;
     }
 
-    private boolean isFirstTouch = true;
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -129,10 +128,9 @@ public class HoynRadioGroup extends RadioGroup {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //getCurrentIndex
-                if (isFirstTouch) {
-                    ((RadioButton) findViewById(getCheckedRadioButtonId())).setChecked(false);
-                    isFirstTouch = false;
-                }
+                RadioButton checkedButton = (RadioButton) findViewById(getCheckedRadioButtonId());
+                if (checkedButton != null && checkedButton.isChecked())
+                    checkedButton.setChecked(false);
                 down_x = ev.getX();
                 animatInit();
                 radius = 0;
