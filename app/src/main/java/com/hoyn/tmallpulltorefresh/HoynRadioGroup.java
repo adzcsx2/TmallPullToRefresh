@@ -190,6 +190,11 @@ public class HoynRadioGroup extends RadioGroup {
                     }
                 }
                 break;
+            case MotionEvent.ACTION_UP:
+                off_left = 0 ;
+                off_right = 0 ;
+                invalidate();
+                break;
         }
 
         return false;
